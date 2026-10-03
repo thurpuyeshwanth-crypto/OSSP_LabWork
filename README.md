@@ -11,6 +11,18 @@ Operating Systems and Systems Programming coursework. The weekly project is **Sh
 | 3 | Done | Command tokenization with `strtok()` and a NULL-terminated `argv[]` |
 | 4 onward | Planned | Process creation and execution will be added in later work sessions |
 
+## Source code
+
+Click a file to open the code on GitHub:
+
+- [Main program and REPL](src/main.c)
+- [Dynamic input reader](src/input.c)
+- [Command parser](src/parser.c)
+- [Shell configuration](include/shell.h)
+- [Input interface](include/input.h)
+- [Parser interface](include/parser.h)
+- [Makefile](Makefile)
+
 ## Build and run
 
 Requirements: GCC, GNU Make, and a Linux environment such as Ubuntu or WSL.
