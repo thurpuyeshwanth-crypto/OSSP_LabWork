@@ -1,44 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "shell.h"
 #include "input.h"
 #include "parser.h"
+#include "process.h"
+#include "builtin.h"
+#include "signals.h"
 
 int main(void)
 {
     char *line;
     char **tokens;
-    size_t i;
-
-    printf("=====================================\n");
-    printf("%s Version %s\n", SHELL_NAME, VERSION);
-    printf("=====================================\n");
-
-    while (1)
-    {
-        printf("myshell> ");
-        fflush(stdout);
+    int builtin_result;
+    initialize_signals();
+    printf("=====================================\n%s Version 6.0\n=====================================\n", SHELL_NAME);
+    while (1) {
+        printf("myshell> "); fflush(stdout);
         line = read_line();
-
-        if (strcmp(line, "exit") == 0)
-        {
-            free(line);
-            break;
-        }
-
+        if (feof(stdin)) { free(line); break; }
         tokens = parse_line(line);
-        if (tokens[0] != NULL)
-        {
-            printf("\nParsed Tokens\n");
-            for (i = 0; tokens[i] != NULL; i++)
-                printf("argv[%zu] = %s\n", i, tokens[i]);
+        if (tokens[0] != NULL) {
+            builtin_result = execute_builtin(tokens);
+            if (builtin_result < 0) { free_tokens(tokens); free(line); break; }
+            if (builtin_result == 0) execute(tokens);
         }
-
         free_tokens(tokens);
         free(line);
     }
-
-    printf("Goodbye!\n");
+    puts("Goodbye!");
     return 0;
 }
