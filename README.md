@@ -6,60 +6,44 @@ Operating Systems and Systems Programming coursework. The weekly project is **Sh
 
 | Week | Status | Work completed |
 |---|---|---|
-| 1 | Done | Project structure, interactive REPL, Makefile, and Git setup |
+| 1 | Done | Project structure and interactive REPL |
 | 2 | Done | Dynamically sized command input using `malloc()`, `realloc()`, and `free()` |
-| 3 | Done | Command tokenization with `strtok()` and a NULL-terminated `argv[]` |
-| 4 onward | Planned | Process creation and execution will be added in later work sessions |
+| 3 | Done | Command tokenization with `strtok()` and NULL-terminated `argv[]` |
+| 4 | Done | External command execution with `fork()`, `execvp()`, and `waitpid()` |
+| 5 | Done | Built-ins: `cd`, `pwd`, `env`, `help`, `clear`, and `exit` |
+| 6 | Done | Shell ignores Ctrl+C; foreground child receives SIGINT; child status is reaped |
 
 ## Source code
 
-Click a file to open the code on GitHub:
-
-- [Main program and REPL](src/main.c)
+- [Main program](src/main.c)
 - [Dynamic input reader](src/input.c)
 - [Command parser](src/parser.c)
-- [Shell configuration](include/shell.h)
-- [Input interface](include/input.h)
-- [Parser interface](include/parser.h)
+- [External process execution](src/process.c)
+- [Built-in commands](src/builtin.c)
+- [Signal setup](src/signals.c)
+- [Headers](include/)
 - [Makefile](Makefile)
 
 ## Build and run
 
-Requirements: GCC, GNU Make, and a Linux environment such as Ubuntu or WSL.
+Requirements: GCC, GNU Make, and Linux or WSL.
 
 ```bash
 make
 make run
 ```
 
-Type `exit` to close ShellForge. Remove generated build output with `make clean`.
-
-## Project layout
-
-```text
-.
-├── Makefile
-├── README.md
-├── include/
-│   ├── input.h
-│   ├── parser.h
-│   └── shell.h
-├── src/
-│   ├── input.c
-│   ├── main.c
-│   └── parser.c
-├── docs/
-├── tests/
-├── screenshots/
-└── bin/                 # generated executable; ignored by Git
-```
+Try `pwd`, `cd ..`, `env`, `help`, or an external command such as `ls`. Type `exit` to close ShellForge. Press Ctrl+C during a foreground command to interrupt that child and return to the shell. Use `make clean` to remove generated output.
 
 ## Week notes
 
 - [Week 1 - The Machine Beneath the Prompt](docs/week1_machine_beneath_prompt.md)
 - [Week 2 - The C Toolchain and Memory Model](docs/week2_toolchain_memory.md)
 - [Week 3 - The Parser](docs/week3_parser.md)
+- [Week 4 - Processes and Command Execution](docs/week4_process_execution.md)
+- [Week 5 - Built-in Commands and Environment Variables](docs/week5_builtins_environment.md)
+- [Week 6 - Signals and Process Control](docs/week6_signals.md)
 
 ## Current scope
 
-ShellForge currently reads a full input line and displays its parsed tokens. The parser prepares arguments in the format required by `execvp()`, but command execution is a later milestone.
+ShellForge runs whitespace-separated commands, implements basic built-ins, and launches external programs. It does not yet support shell quoting, redirection, or pipelines.
