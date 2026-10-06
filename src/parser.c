@@ -1,47 +1,51 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "parser.h"
 
-#define TOKEN_SIZE 64
-#define TOKEN_DELIMITERS " \t\r\n\a"
+static void add_token(char ***tokens, size_t *count, size_t *capacity, char *token)
+{
+    if (*count + 1 >= *capacity) {
+        size_t next = *capacity * 2;
+        char **grown = realloc(*tokens, next * sizeof(**tokens));
+        if (grown == NULL) { free(*tokens); perror("realloc"); exit(EXIT_FAILURE); }
+        *tokens = grown;
+        *capacity = next;
+    }
+    (*tokens)[(*count)++] = token;
+}
 
 char **parse_line(char *line)
 {
-    size_t size = TOKEN_SIZE;
-    size_t position = 0;
-    char **tokens = malloc(size * sizeof(*tokens));
-
-    if (tokens == NULL)
-    {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-
-    char *token = strtok(line, TOKEN_DELIMITERS);
-    while (token != NULL)
-    {
-        if (position + 1 >= size)
-        {
-            size *= 2;
-            char **grown = realloc(tokens, size * sizeof(*tokens));
-            if (grown == NULL)
-            {
-                free(tokens);
-                perror("realloc");
-                exit(EXIT_FAILURE);
-            }
-            tokens = grown;
+    size_t count = 0, capacity = 16;
+    char **tokens = malloc(capacity * sizeof(*tokens));
+    char *p = line;
+    if (tokens == NULL) { perror("malloc"); exit(EXIT_FAILURE); }
+    while (*p != '\0') {
+        while (isspace((unsigned char)*p)) p++;
+        if (*p == '\0') break;
+        if (p[0] == '2' && p[1] == '>') {
+            add_token(&tokens, &count, &capacity, "2>"); p += 2; continue;
         }
-        tokens[position++] = token;
-        token = strtok(NULL, TOKEN_DELIMITERS);
+        if (*p == '<') { add_token(&tokens, &count, &capacity, "<"); p++; continue; }
+        if (*p == '|') { add_token(&tokens, &count, &capacity, "|"); p++; continue; }
+        if (*p == '>') {
+            if (p[1] == '>') { add_token(&tokens, &count, &capacity, ">>"); p += 2; }
+            else { add_token(&tokens, &count, &capacity, ">"); p++; }
+            continue;
+        }
+        char *start = p;
+        while (*p && !isspace((unsigned char)*p) && *p != '<' && *p != '>' && *p != '|') p++;
+        if (*p) {
+            char delimiter = *p;
+            *p = '\0';
+            add_token(&tokens, &count, &capacity, start);
+            if (isspace((unsigned char)delimiter)) p++;
+            else *p = delimiter;
+        } else add_token(&tokens, &count, &capacity, start);
     }
-
-    tokens[position] = NULL;
+    tokens[count] = NULL;
     return tokens;
 }
 
-void free_tokens(char **tokens)
-{
-    free(tokens);
-}
+void free_tokens(char **tokens) { free(tokens); }
